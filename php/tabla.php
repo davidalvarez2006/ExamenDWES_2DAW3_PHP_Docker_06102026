@@ -1,16 +1,20 @@
 <?php
+// Conectar con la base de datos
 $con = mysqli_connect("localhost", "php", "", "cae");
 
+// Comprobar conexión
 if (!$con) {
     die("Error de conexión: " . mysqli_connect_error());
 }
 
+// Variables para mostrar mensajes y resultados
 $mensaje = "";
 $tipo = "";
 $registros = false;
 
-// Recoger y guardar los datos enviados por el formulario
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+// Comprobar si la petición es post, Post -> envio formulario / Get -> consulta de profesiones
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Recoger los datos del formulario, trim para eliminar espacios
     $nombre = $_POST["nombre"] ?? "";
     $apellidos = $_POST["apellidos"] ?? "";
     $dni = $_POST["dni"] ?? "";
@@ -19,63 +23,77 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $_POST["email"] ?? "";
     $profesion = $_POST["profesion"] ?? "";
     $jornadaParcial = $_POST["jornadaParcial"] ?? "";
+
+    // Cadena para guardar los idiomas
     $idiomas = "";
 
+    // Añadir inglés si la casilla está marcada
     if (isset($_POST["idioma_ingles"])) {
         $idiomas = "Ingles";
     }
+
+    // Añadir euskera y separarlo de inglés si ya estaba seleccionado
     if (isset($_POST["idioma_euskara"])) {
-        if ($idiomas !== "") {
+        if ($idiomas != "") {
             $idiomas .= ", ";
         }
         $idiomas .= "Euskara";
     }
 
-    if ($nombre === "" || $apellidos === "" || $dni === "" || $f_nac === "" ||
-        $tlf === "" || $email === "" || $profesion === "" || $jornadaParcial === "") {
+    // Comprobar campos obligatorios
+    if ($nombre == "" || $apellidos == "" || $dni == "" || $f_nac == "" ||
+        $tlf == "" || $email == "" || $profesion == "" || $jornadaParcial == "") {
         $mensaje = "Comprueba que todos los campos obligatorios sean correctos.";
-    } elseif ($profesion !== "soldadura" && $profesion !== "informatica" &&
-        $profesion !== "asistencia-sociosanitaria") {
+    // Aceptar únicamente las profesiones disponibles
+    } elseif ($profesion != "soldadura" && $profesion != "informatica" &&
+        $profesion != "asistencia-sociosanitaria") {
         $mensaje = "La profesión seleccionada no es válida.";
-    } elseif ($jornadaParcial !== "0" && $jornadaParcial !== "1") {
+    // Aceptar únicamente los valores jornada parcial y completa
+    } elseif ($jornadaParcial != "0" && $jornadaParcial != "1") {
         $mensaje = "Selecciona un tipo de jornada válido.";
     } else {
+        // Preparar la insert
         $sql_insert = "INSERT INTO solicitud (nombre, apellidos, dni, f_nac, tlf, email, profesion, jornadaParcial, idiomas)
         VALUES ('$nombre', '$apellidos', '$dni', '$f_nac', '$tlf', '$email', '$profesion', $jornadaParcial, '$idiomas')";
 
+        // Ejecutar la insert
         if (mysqli_query($con, $sql_insert)) {
             $mensaje = "Solicitud registrada correctamente.";
         } else {
             $mensaje = "Error al insertar la solicitud: " . mysqli_error($con);
         }
     }
+// Si no es post, comprobar get (consultas de profesiones)
 } elseif (isset($_GET["tipo"])) {
-    // Elegir las solicitudes que se mostrarán según el botón pulsado
-    if ($_GET["tipo"] === "soldadura") {
-        $tipo = "Soldadura";
-        $profesion = "soldadura";
-    } elseif ($_GET["tipo"] === "informatica") {
+    // Mapear el tipo recibido a su nombre visible y valor de BD
+    if ($_GET["tipo"] == "soldadura") {
+        $tipo = "Soldadura"; // tipo para los textos
+        $profesion = "soldadura"; // profesion para la bd
+    } elseif ($_GET["tipo"] == "informatica") {
         $tipo = "Informática";
         $profesion = "informatica";
-    } elseif ($_GET["tipo"] === "socio") {
+    } elseif ($_GET["tipo"] == "socio") {
         $tipo = "Asistencia Sociosanitaria";
         $profesion = "asistencia-sociosanitaria";
     } else {
         $mensaje = "El ámbito solicitado no es válido.";
     }
 
-    if ($tipo !== "") {
+    // Filtrar los resultados
+    if ($tipo != "") {
         $registros = mysqli_query(
             $con,
             "SELECT nombre, apellidos, dni, f_nac, tlf, email, profesion, jornadaParcial, idiomas
             FROM solicitud WHERE profesion = '$profesion'"
         );
 
+        // Guardar un mensaje de error si la consulta falla
         if (!$registros) {
             $mensaje = "Error al consultar solicitudes: " . mysqli_error($con);
         }
     }
 } else {
+    // Informar cuando no se ha enviado el formulario ni elegido un ámbito
     $mensaje = "Selecciona un ámbito o envía una solicitud desde el formulario.";
 }
 ?>
@@ -90,18 +108,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <h1>Centro de Ayuda al Empleo</h1>
 
     <?php
-    if ($tipo !== "") {
+    // Mostrar el nombre del ámbito consultado
+    if ($tipo != "") {
         echo "<h2>Solicitudes de $tipo</h2>";
     }
 
-    if ($mensaje !== "") {
+    // Mostrar los mensajes de resultado
+    if ($mensaje != "") {
         echo "<p>" . htmlspecialchars($mensaje, ENT_QUOTES, "UTF-8") . "</p>";
     }
 
+    // Mostrar la tabla, comprobando el resultado de mysql
     if ($registros) {
-        if (mysqli_num_rows($registros) === 0) {
+        // Informar si la consulta no ha encontrado datos
+        if (mysqli_num_rows($registros) == 0) {
             echo "<p>No hay solicitudes para este ámbito.</p>";
         } else {
+            // Crear la tabla y su fila de encabezados.
             echo "<table>";
             echo "<tr>";
             echo "<th>Nombre</th>";
@@ -115,7 +138,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             echo "<th>Idiomas</th>";
             echo "</tr>";
 
+            // Recorrer los resultados y printearlos
             while ($reg = mysqli_fetch_array($registros)) {
+                // htmlspecialchars() convierte caracteres especiales en texto para evitar que el navegador interprete datos como código HTML o JavaScrip
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($reg["nombre"], ENT_QUOTES, "UTF-8") . "</td>";
                 echo "<td>" . htmlspecialchars($reg["apellidos"], ENT_QUOTES, "UTF-8") . "</td>";
@@ -138,6 +163,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </body>
 </html>
 <?php
-// Cerrar conexión
-mysqli_close($con);
+    // Cerrar la conexión
+    mysqli_close($con);
 ?>

@@ -8,11 +8,14 @@
     <body>
         <h1>Centro de Ayuda al Empleo</h1>
         <h2>Formulario de solicitud</h2>
+        <!-- Estos botones muestran en tabla.php los registros filtrados por profesión -->
         <button onclick="location.href='../php/tabla.php?tipo=soldadura'">Soldadura</button>
         <button onclick="location.href='../php/tabla.php?tipo=informatica'">Informática</button>
         <button onclick="location.href='../php/tabla.php?tipo=socio'">Asistencia Sociosanitaria</button>
+
+        <!-- Los datos del formulario se envían por POST a tabla.php -->
         <form action="../php/tabla.php" method="post">
-            <!-- Añade aquí todos los datos que te pido en el enunciado -->
+            <!-- Datos personales: los campos obligatorios se validan antes de enviar el formulario -->
             <label>Nombre:</label>
             <input type="text" id="nombre" name="nombre" minlength="2" required>
 
@@ -20,18 +23,21 @@
             <input type="text" id="apellidos" name="apellidos" minlength="2" required>
 
             <label>DNI:</label>
+            <!-- El patrón exige 8 números seguidos de una letra -->
             <input type="text" id="dni" name="dni" pattern="[0-9]{8}[A-Za-z]" maxlength="9" required>
 
             <label>Fecha de nacimiento:</label>
             <input type="date" id="f_nac" name="f_nac" required>
         
             <label>Telefono:</label>
+            <!-- Acepta un teléfono con prefijo opcional y separadores habituales -->
             <input type="tel" id="tlf" name="tlf" pattern="[+]?[0-9][0-9() -]{6,18}" maxlength="20" required>
 
             <label>Email:</label>
             <input type="email" id="email" name="email" required>
             
             <label>Profesion:</label>
+            <!-- El valor seleccionado identifica la profesión que se enviará al servidor -->
             <select id="profesion" name="profesion" required>
                 <option value="" selected disabled>Selecciona una profesión</option>
                 <option value="soldadura">Soldadura</option>
@@ -39,12 +45,14 @@
                 <option value="asistencia-sociosanitaria">Asistencia sociosanitaria</option>
             </select>
 
+            <!-- Los radios permiten elegir una única jornada: parcial (1) o completa (0) -->
             <label>Ingrese jornada:</label>
             <input type="radio" name="jornadaParcial" id="jornada-parcial" value="1" required>Jornada Parcial
             <br>
             <input type="radio" name="jornadaParcial" id="jornada-completa" value="0">Jornada Completa
             <br>
 
+            <!-- Cada casilla marcada añade el idioma a la solicitud -->
             <label>Agregue idiomas:</label>
             <input type="checkbox" name="idioma_ingles" id="idioma-ingles" value="Ingles">Ingles
             <br>
