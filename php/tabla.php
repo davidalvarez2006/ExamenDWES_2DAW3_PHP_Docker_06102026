@@ -14,7 +14,7 @@ $registros = false;
 
 // Comprobar si la petición es post, Post -> envio formulario / Get -> consulta de profesiones
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Recoger los datos del formulario, trim para eliminar espacios
+    // Recoger los datos del formulario
     $nombre = $_POST["nombre"] ?? "";
     $apellidos = $_POST["apellidos"] ?? "";
     $dni = $_POST["dni"] ?? "";
@@ -115,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Mostrar los mensajes de resultado
     if ($mensaje != "") {
-        echo "<p>" . htmlspecialchars($mensaje, ENT_QUOTES, "UTF-8") . "</p>";
+        echo "<p>" . $mensaje . "</p>";
     }
 
     // Mostrar la tabla, comprobando el resultado de mysql
@@ -140,17 +140,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Recorrer los resultados y printearlos
             while ($reg = mysqli_fetch_array($registros)) {
-                // htmlspecialchars() convierte caracteres especiales en texto para evitar que el navegador interprete datos como código HTML o JavaScrip
                 echo "<tr>";
-                echo "<td>" . htmlspecialchars($reg["nombre"], ENT_QUOTES, "UTF-8") . "</td>";
-                echo "<td>" . htmlspecialchars($reg["apellidos"], ENT_QUOTES, "UTF-8") . "</td>";
-                echo "<td>" . htmlspecialchars($reg["dni"], ENT_QUOTES, "UTF-8") . "</td>";
-                echo "<td>" . htmlspecialchars($reg["f_nac"], ENT_QUOTES, "UTF-8") . "</td>";
-                echo "<td>" . htmlspecialchars($reg["tlf"], ENT_QUOTES, "UTF-8") . "</td>";
-                echo "<td>" . htmlspecialchars($reg["email"], ENT_QUOTES, "UTF-8") . "</td>";
-                echo "<td>" . htmlspecialchars($reg["profesion"], ENT_QUOTES, "UTF-8") . "</td>";
+                echo "<td>" . $reg["nombre"] . "</td>";
+                echo "<td>" . $reg["apellidos"] . "</td>";
+                echo "<td>" . $reg["dni"] . "</td>";
+                echo "<td>" . $reg["f_nac"] . "</td>";
+                echo "<td>" . $reg["tlf"] . "</td>";
+                echo "<td>" . $reg["email"] . "</td>";
+                echo "<td>" . $reg["profesion"] . "</td>";
                 echo "<td>" . ($reg["jornadaParcial"] ? "Sí" : "No") . "</td>";
-                echo "<td>" . htmlspecialchars($reg["idiomas"], ENT_QUOTES, "UTF-8") . "</td>";
+                echo "<td>" . $reg["idiomas"] . "</td>";
                 echo "</tr>";
             }
 
