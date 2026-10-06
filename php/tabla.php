@@ -44,8 +44,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($nombre == "" || $apellidos == "" || $dni == "" || $f_nac == "" ||
         $tlf == "" || $email == "" || $profesion == "" || $jornadaParcial == "") {
         $mensaje = "Comprueba que todos los campos obligatorios sean correctos.";
-    } elseif ($idiomas == "") {
-        $mensaje = "Selecciona al menos un idioma.";
     // Aceptar únicamente las profesiones disponibles
     } elseif ($profesion != "soldadura" && $profesion != "informatica" &&
         $profesion != "asistencia-sociosanitaria") {
